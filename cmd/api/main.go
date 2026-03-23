@@ -5,6 +5,7 @@ import (
     "net/http"
     "github.com/gin-gonic/gin"
     "github.com/Daddy-senpaii/Shorty_URL/internal/config"
+    "github.com/Daddy-senpaii/Shorty_URL/internal/utils"
 )
 
 func getPing(context *gin.Context){
@@ -22,5 +23,14 @@ func main(){
     admin := router.Group("/api")
 
     admin.GET("/ping", getPing)
+
+    admin.GET("/test-code", func(c *gin.Context){
+        code, err := utils.GenerateShortCode(8)
+        if err != nil {
+            c.JSON(500, gin.H{"error": err.Error()})
+            return
+        }
+        c.JSON(http.StatusOK, gin.H{"short-code":code})
+    })
     router.Run(":5000")
 }
