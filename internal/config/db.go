@@ -14,6 +14,10 @@ var (
     DB *mongo.Database
 )
 
+func GetCollection(name string) *mongo.Collection{
+    return DB.Collection(name)
+}
+
 func MakeConnection(){
     ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
     defer cancel()
