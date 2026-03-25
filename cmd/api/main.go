@@ -1,11 +1,11 @@
 package main
-
 import (
     "context"
     "net/http"
     "github.com/gin-gonic/gin"
     "github.com/Daddy-senpaii/Shorty_URL/internal/config"
     "github.com/Daddy-senpaii/Shorty_URL/internal/utils"
+    "github.com/Daddy-senpaii/Shorty_URL/internal/controller"
 )
 
 func getPing(context *gin.Context){
@@ -32,5 +32,8 @@ func main(){
         }
         c.JSON(http.StatusOK, gin.H{"short-code":code})
     })
+
+    admin.POST("/post-url", controller.PostURL)
+    router.GET("/:code", controller.GetURL)
     router.Run(":5000")
 }
