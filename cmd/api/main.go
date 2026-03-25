@@ -1,5 +1,4 @@
 package main
-
 import (
     "context"
     "net/http"
@@ -35,5 +34,6 @@ func main(){
     })
 
     admin.POST("/post-url", controller.PostURL)
+    router.GET("/:code", controller.GetURL)
     router.Run(":5000")
 }

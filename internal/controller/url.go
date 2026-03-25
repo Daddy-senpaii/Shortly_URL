@@ -6,7 +6,7 @@ import (
     "github.com/Daddy-senpaii/Shorty_URL/internal/utils"
     "github.com/Daddy-senpaii/Shorty_URL/internal/config"
     "go.mongodb.org/mongo-driver/v2/bson"
-    //"go.mongodb.org/mongo-driver/v2/mongo"
+    "go.mongodb.org/mongo-driver/v2/mongo"
     "context"
     "errors"
     "log"
@@ -15,6 +15,45 @@ import (
     "net/http"
     "fmt"
 )
+
+
+func GetURL(c *gin.Context){
+    fmt.Println("Handling Get handler")
+    code := c.Param("code")
+    fmt.Println(code)
+    ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+    defer cancel()
+
+    var url models.ShortURL
+
+    collection := config.GetCollection("url")
+    
+    if err := collection.FindOne(ctx, bson.M{"short_code": code}).Decode(&url); err != nil {
+
+        if errors.Is(err, mongo.ErrNoDocuments){
+            c.JSON(http.StatusNotFound, gin.H{"error": "urlnot found"})
+            return 
+        } else if err != nil {
+            c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
+            return 
+        }
+    }
+
+    go func(){
+        ctx2, cancel2 := context.WithTimeout(context.Background(), 10*time.Second)
+        defer cancel2()
+
+        collection.UpdateOne(
+                            ctx2,
+                            bson.M{"short_code": code},
+                            bson.M{"$inc": bson.M{"click_count": 1}},
+                            )
+    }()
+    c.Redirect(http.StatusMovedPermanently, url.OriginalURL)
+
+
+}
+
 
 func ValidateURL(original_url string) bool {
     parsed, err := url.ParseRequestURI(original_url)
