@@ -7,5 +7,5 @@ import (
 type User struct {
     ID bson.ObjectID    `bson:"_id, omitempty"  json:"id,omitempty"`
     Email string        `bson:"email"           json:"email" validate: "required, email"`
-    Password string     `bson:"password"        json:"-"`
+    Password string     `bson:"password"        json:"password"`
 }

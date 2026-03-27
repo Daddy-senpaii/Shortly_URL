@@ -34,6 +34,7 @@ func main(){
     })
 
     admin.POST("/post-url", controller.PostURL)
+    admin.POST("/register", controller.Register)
     router.GET("/:code", controller.GetURL)
     router.Run(":5000")
 }
