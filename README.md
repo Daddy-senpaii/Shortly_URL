@@ -51,12 +51,16 @@ Each user can create, manage, and track their own shortened links with proper au
     go run ./cmd/api
 ## Api EndPoints
 ### Authentication
-    Method,Endpoint,Description
-    POST,/api/register,Register new user
-    POST,/api/login,Login and get JWT
+
+      | Method | Endpoint       | Description          |
+      |--------|--------------|------------------------|
+      | POST   | /api/register | Register new user     |
+      | POST   | /api/login    | Login and get JWT     |
+      
 ### URL designs
-    Method,Endpoint,Description,Auth Required
-    POST,/api/shorten,Create a new short URL,Yes
-    GET,/:code,Redirect to original URL,No
-    GET,/api/my-links,Get all my shortened links,Yes
-    DELETE,/api/my-links/:id,Delete a shortened link,Yes
+    | Method | Endpoint              | Description                    | Auth Required |
+    |--------|----------------------|---------------------------------|---------------|
+    | POST   | /api/shorten         | Create a new short URL          | Yes           |
+    | GET    | /:code               | Redirect to original URL        | No            |
+    | GET    | /api/my-links        | Get all my shortened links      | Yes           |
+    | DELETE | /api/my-links/:id    | Delete a shortened link         | Yes           |
