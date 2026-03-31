@@ -7,6 +7,7 @@ import (
     "github.com/Daddy-senpaii/Shorty_URL/internal/config"
     "go.mongodb.org/mongo-driver/v2/bson"
     "go.mongodb.org/mongo-driver/v2/mongo"
+    //"github.com/golang-jwt/jwt/v5"
     "context"
     "errors"
     "log"
@@ -85,6 +86,8 @@ func PostURL(c *gin.Context){
     
     original_url := url_struct.OriginalURL
 
+    //validation of url
+
     if original_url == "" {
         c.JSON(http.StatusBadRequest, gin.H{
             "error": "url required",
@@ -101,7 +104,7 @@ func PostURL(c *gin.Context){
     }
     url_struct.ID = bson.NewObjectID()
     url_struct.OriginalURL = original_url
-
+    // Generating Short Code 
     short_code, err := utils.GenerateShortCode(8)
     if err != nil {
         log.Fatal(err)
@@ -113,9 +116,27 @@ func PostURL(c *gin.Context){
     if err != nil {
         log.Fatal(err)
     }
+    // extracting url from jwt context
+    userID, exists := c.Get("user_id")
+    if !exists{
+        c.JSON(http.StatusUnauthorized, gin.H{"error": "user is not found"})
+        return
+    }
+    uidStr, ok := userID.(string)
+    if !ok {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "invalid user_id format"})
+        return
+    }
+
+    objectID, err := bson.ObjectIDFromHex(uidStr)
+    if err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "invalid user_id format"})
+        return
+    }
 
     url_struct.ShortURL = shortURL
     url_struct.CreatedAt = time.Now()
+    url_struct.UserID = objectID
 
    // fmt.Println(url_struct)
 
