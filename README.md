@@ -10,8 +10,8 @@ Shortly_URL URL Shortener
       │   ├── models/
       │   ├── services/
       │   └── utils/
-    ├── docker-compose.yml
-    └── README.md
+      ├── docker-compose.yml
+      └── README.md
 
 A clean, fast, and secure URL shortener built with **Go (Gin)** and **MongoDB**.  
 Each user can create, manage, and track their own shortened links with proper authentication.
@@ -49,5 +49,14 @@ Each user can create, manage, and track their own shortened links with proper au
     docker compose up -d
 ### 3. Run the Go server
     go run ./cmd/api
-
-    
+## Api EndPoints
+### Authentication
+    Method,Endpoint,Description
+    POST,/api/register,Register new user
+    POST,/api/login,Login and get JWT
+### URL designs
+    Method,Endpoint,Description,Auth Required
+    POST,/api/shorten,Create a new short URL,Yes
+    GET,/:code,Redirect to original URL,No
+    GET,/api/my-links,Get all my shortened links,Yes
+    DELETE,/api/my-links/:id,Delete a shortened link,Yes
