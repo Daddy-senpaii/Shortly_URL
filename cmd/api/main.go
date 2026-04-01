@@ -37,6 +37,7 @@ func main(){
     admin.POST("/post-url",middleware.AuthMiddleWare(),controller.PostURL) 
     admin.POST("/register", controller.Register)
     admin.POST("/login", controller.LogIn)
+    admin.GET("/getMyURL", middleware.AuthMiddleWare(), controller.GetMyURL)
     router.GET("/:code", middleware.AuthMiddleWare(), controller.GetURL)
     router.Run(":5000")
 }

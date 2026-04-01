@@ -55,6 +55,47 @@ func GetURL(c *gin.Context){
 
 }
 
+// get my url
+
+func GetMyURL(c *gin.Context){
+    id := c.Get("user_id")
+    ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+    defer cancel()
+
+    collection := config.GetCollection("url")
+
+    cursor, err := collection.Find(ctx, bson.M{"user_id": id})
+    if err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "error in fetching urls"})
+        return 
+    }
+
+    defer cursor.Close(ctx)
+
+    var urls []models.ShortURL
+
+    for cursor.Next(ctx){
+        var url models.ShortURL
+        if err := cursor.Decode(&url); err != nil {
+            c.JSON(http.StatusInternalServerError, gin.H{"error": "error in decoding"})
+            return
+        }
+
+        urls = append(urls, url)
+    }
+
+    if err := cursor.Err(); err != nil{
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "no urls found"})
+        return 
+    }
+    if len(urls) == 0 {
+        c.JSON(http.StatusInternalServerError, gin.H{"message": "no urls found"})
+        return 
+    }
+
+    c.JSON(http.StatusOK, urls)
+}
+
 
 func ValidateURL(original_url string) bool {
     parsed, err := url.ParseRequestURI(original_url)
