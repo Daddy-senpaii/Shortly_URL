@@ -58,13 +58,29 @@ func GetURL(c *gin.Context){
 // get my url
 
 func GetMyURL(c *gin.Context){
-    id := c.Get("user_id")
+    id,exists := c.Get("user_id")
+    if !exists{
+        c.JSON(http.StatusUnauthorized, gin.H{"error": "user doesn't exist"})
+        return 
+    }
+    userID, ok := id.(string)
+    if !ok {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "invalid format"})
+        return
+    }
+
+    objectID, err := bson.ObjectIDFromHex(userID)
+    if err != nil {
+        c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid format"})
+        return 
+    }
+    
     ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
     defer cancel()
 
     collection := config.GetCollection("url")
 
-    cursor, err := collection.Find(ctx, bson.M{"user_id": id})
+    cursor, err := collection.Find(ctx, bson.M{"user_id": objectID})
     if err != nil {
         c.JSON(http.StatusInternalServerError, gin.H{"error": "error in fetching urls"})
         return 
