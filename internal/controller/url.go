@@ -112,6 +112,55 @@ func GetMyURL(c *gin.Context){
     c.JSON(http.StatusOK, urls)
 }
 
+// get single links
+
+func GetLinkById(c *gin.Context){
+//    fmt.Println("hit getlinkbyid")
+    id := c.Param("id")
+  //  fmt.Println("id is: ",id)
+    linkID, err := bson.ObjectIDFromHex(id)
+
+    if err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid id format"})
+        return
+    }
+
+    // Get user_id from JWT middleware
+    userIDRaw, exists := c.Get("user_id")
+    if !exists{
+        c.JSON(http.StatusUnauthorized, gin.H{"error": "User Id is not found"})
+        return
+    }
+
+    userIDStr, ok := userIDRaw.(string)
+    if !ok {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid id format"})
+        return
+    }
+    ObjectID, err := bson.ObjectIDFromHex(userIDStr)
+    if err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid id format"})
+        return
+    }
+
+    ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+    defer cancel()
+
+    var link models.ShortURL
+
+    err = config.GetCollection("url").FindOne(ctx, bson.M{"_id": linkID, "user_id": ObjectID}).Decode(&link)
+
+    if err == mongo.ErrNoDocuments{
+        c.JSON(http.StatusNotFound, gin.H{"error": "Link not found man"})
+        return
+    }
+    if err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch"})
+        return
+    }
+    c.JSON(http.StatusOK, link)
+}
+
 
 func ValidateURL(original_url string) bool {
     parsed, err := url.ParseRequestURI(original_url)

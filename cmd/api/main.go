@@ -1,4 +1,4 @@
-package main
+http://localhost:5000/api/getMyURL/69cb978f7172612be37eac6cpackage main
 import (
     "context"
     "net/http"
@@ -38,6 +38,7 @@ func main(){
     admin.POST("/register", controller.Register)
     admin.POST("/login", controller.LogIn)
     admin.GET("/getMyURL", middleware.AuthMiddleWare(), controller.GetMyURL)
+    admin.GET("/getMyURL/:id", middleware.AuthMiddleWare(),controller.GetLinkById)
     router.GET("/:code", middleware.AuthMiddleWare(), controller.GetURL)
     router.Run(":5000")
 }
